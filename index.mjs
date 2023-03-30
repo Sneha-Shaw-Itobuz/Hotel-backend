@@ -21,6 +21,19 @@ function RouteActions(req) {
   if (path === "/carousel") {
     return getCarouselData();
   }
+  if (path === "/post-data") {
+    let chunks = "";
+    req.on("data", (chunk) => {
+      chunks = chunk.toString();
+    });
+
+    req.on("end", () => {
+      let parsedData = parse(chunks);
+      if (Object.keys(parsedData).length !== 0) {
+        modifyFile(parsedData);
+      }
+    });
+  }
 }
 
 async function modifyFile(totalFormData) {
@@ -35,19 +48,7 @@ const server = http.createServer(function (req, res) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Headers", "*");
     res.writeHead(200, { "Content-Type": "application/json" });
-    let chunks = "";
-    req.on("data", (chunk) => {
-      console.log(chunk.toString());
-      chunks = chunk.toString();
-    });
 
-    req.on("end", () => {
-      let parsedData = parse(chunks);
-      console.log(parsedData);
-      if (Object.keys(parsedData).length !== 0) {
-        modifyFile(parsedData);
-      }
-    });
     res.end(RouteActions(req));
   } catch (err) {
     console.log(err);
