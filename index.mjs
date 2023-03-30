@@ -30,17 +30,30 @@ function RouteActions(req) {
     req.on("end", () => {
       let parsedData = parse(chunks);
       if (Object.keys(parsedData).length !== 0) {
-        modifyFile(parsedData);
+        modifyFile(parsedData, "./database/formData.txt");
+      }
+    });
+  }
+  if (path === "/newsletter") {
+    let chunks = "";
+    req.on("data", (chunk) => {
+      chunks = chunk.toString();
+    });
+
+    req.on("end", () => {
+      let parsedData = parse(chunks);
+      if (Object.keys(parsedData).length !== 0) {
+        modifyFile(parsedData, "./database/emailData.txt");
       }
     });
   }
 }
 
-async function modifyFile(totalFormData) {
-  let readFileData = await fs.readFile("./database/formData.txt", "utf-8");
+async function modifyFile(totalFormData, fileName) {
+  let readFileData = await fs.readFile(fileName, "utf-8");
   readFileData = JSON.parse(readFileData);
   readFileData.push(totalFormData);
-  await fs.writeFile("./database/formData.txt", JSON.stringify(readFileData));
+  await fs.writeFile(fileName, JSON.stringify(readFileData));
 }
 
 const server = http.createServer(function (req, res) {
